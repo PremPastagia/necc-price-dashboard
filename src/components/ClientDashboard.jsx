@@ -159,6 +159,7 @@ export default function ClientDashboard({ livePrices = [], availableCities = [],
   const [flockLayers, setFlockLayers] = useState(30000);
   const [holdingDays, setHoldingDays] = useState(4);
   const [dailyColdStoragePerEgg, setDailyColdStoragePerEgg] = useState(0.015);
+  const [abstractCopied, setAbstractCopied] = useState(false);
 
   // Auto-generate Lot Code on Mount or City Change
   useEffect(() => {
@@ -321,6 +322,56 @@ export default function ClientDashboard({ livePrices = [], availableCities = [],
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Copy formal abstract to clipboard
+  const handleCopyAbstract = () => {
+    const abstractText = `Administered Pricing and the Limits of Algorithmic Forecasting: Evidence from India's National Egg Coordination Committee
+Author: Prem Pastagia
+Affiliation: Independent Econometric Researcher / Advanced Agri-Analytics
+Target Journal: International Journal of Forecasting (IJF)
+
+ABSTRACT:
+This study investigates whether modern machine learning (ML) architectures outperform parsimonious time-series models in agricultural commodity markets governed by administered pricing mechanisms. Using a forensically reconstructed and validated daily panel of wholesale egg prices from India's National Egg Coordination Committee (NECC)—comprising 5,670 consecutive daily observations across 29 commercial centers from 2009 to 2026—we benchmark 31 forecasting models across 10 chronological rolling-origin evaluation windows (4,060 out-of-sample evaluations).
+
+Pre-estimation diagnostics confirm strict I(1) unit root integration, ARCH volatility clustering, and a dominant national spatial factor accounting for 46.4% of total variance. Pairwise Granger causality proves that the southern production hub of Namakkal price-leads 27 of 28 destination markets (p = 0.000), while Barwala (p = 0.121) operates as an autonomous northern supply pole.
+
+We find that classical parsimonious models systematically dominate complex algorithms: TBATS (MASE = 3.176), Naïve random-walk (MASE = 3.177), and AutoARIMA (MASE = 3.192) outperform tree ensembles, while boosting models experience catastrophic generalization collapse (XGBoost MASE = 9.306; LightGBM MASE = 36.739). Furthermore, we discover a "Regional Performance Paradox": in southern production strongholds where NECC coordination is absolute, ML collapses completely; in peripheral northern/central consumption centers with transportation frictions, tree ensembles gain predictive traction. A horizon-aware structural ensemble (SARIMA for h <= 14 days, switching to Prophet for h = 30 days) delivers a 10.2% out-of-sample holdout error reduction. These findings demonstrate that in administered markets governed by institutional inertia, parsimonious models succeed because they match the underlying step-function data-generating process.
+
+Keywords: Administered pricing, Agricultural commodity forecasting, National Egg Coordination Committee (NECC), Model parsimony, Regional performance paradox, Machine learning vs. Econometrics.`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(abstractText);
+    }
+    setAbstractCopied(true);
+    setTimeout(() => setAbstractCopied(false), 3000);
+  };
+
+  const handleDownloadAbstract = () => {
+    const element = document.createElement('a');
+    const file = new Blob([`# Conference & Journal Abstract Submission
+
+**Title:** Administered Pricing and the Limits of Algorithmic Forecasting: Evidence from India's National Egg Coordination Committee  
+**Author:** Prem Pastagia  
+**Affiliation:** Independent Econometric Researcher / Advanced Agri-Analytics  
+**Target Journal / Symposia:** International Journal of Forecasting (IJF) / International Conference on Agri-Commodity Analytics 2026  
+**Subject Classification (JEL Codes):** C22, C53, Q11, Q13  
+**Keywords:** Administered pricing, Agricultural commodity forecasting, National Egg Coordination Committee (NECC), Model parsimony, Regional performance paradox, Machine learning vs. Econometrics  
+
+---
+
+## Abstract
+This study investigates whether modern machine learning (ML) architectures outperform parsimonious time-series models in agricultural commodity markets governed by administered pricing mechanisms. Using a forensically reconstructed and validated daily panel of wholesale egg prices from India's National Egg Coordination Committee (NECC)—comprising 5,670 consecutive daily observations across 29 commercial centers from 2009 to 2026—we benchmark 31 forecasting models across 10 chronological rolling-origin evaluation windows (4,060 out-of-sample evaluations). 
+
+Pre-estimation diagnostics confirm strict I(1) unit root integration, ARCH volatility clustering, and a dominant national spatial factor accounting for 46.4% of total variance. Pairwise Granger causality proves that the southern production hub of Namakkal price-leads 27 of 28 destination markets (p = 0.000), while Barwala (p = 0.121) operates as an autonomous northern supply pole. 
+
+We find that classical parsimonious models systematically dominate complex algorithms: TBATS (MASE = 3.176), Naïve random-walk (MASE = 3.177), and AutoARIMA (MASE = 3.192) outperform tree ensembles, while boosting models experience catastrophic generalization collapse (XGBoost MASE = 9.306; LightGBM MASE = 36.739). Furthermore, we discover a "Regional Performance Paradox": in southern production strongholds where NECC coordination is absolute, ML collapses completely; in peripheral northern/central consumption centers with transportation frictions, tree ensembles gain predictive traction. A horizon-aware structural ensemble (SARIMA for h <= 14 days, switching to Prophet for h = 30 days) delivers a 10.2% out-of-sample holdout error reduction. These findings demonstrate that in administered markets governed by institutional inertia, parsimonious models succeed because they match the underlying step-function data-generating process.
+`], { type: 'text/markdown' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'NECC_Econometric_Abstract_Submission_Prem_Pastagia.md';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   };
 
   // Filtered Trades for Ledger
@@ -607,6 +658,12 @@ export default function ClientDashboard({ livePrices = [], availableCities = [],
           onClick={() => setActiveTab('roi-value')}
         >
           💡 Client ROI & Value Proposition
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'research-abstract' ? 'active' : ''}`}
+          onClick={() => setActiveTab('research-abstract')}
+        >
+          📜 Econometric Research & Abstract
         </button>
       </div>
 
@@ -1319,6 +1376,111 @@ export default function ClientDashboard({ livePrices = [], availableCities = [],
                 <li>Local offline-first persistence ensures complete client data privacy (never leaked to competitors).</li>
                 <li>Instant CSV export compatible with Tally, Zoho Books, and Excel for GST compliance.</li>
                 <li>Complete transaction trail with counterparty, lot codes, and verified benchmark deltas.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          TAB 6: ECONOMETRIC RESEARCH & ABSTRACT SUBMISSION
+          ───────────────────────────────────────────────────────────── */}
+      {activeTab === 'research-abstract' && (
+        <div className="tab-pane animate-fade">
+          {/* Header & Submission Action Strip */}
+          <div className="glass-panel research-header-card">
+            <div className="research-title-area">
+              <span className="research-kicker">ACADEMIC RESEARCH & CONFERENCE SUBMISSION</span>
+              <h2 className="research-title">
+                Administered Pricing and the Limits of Algorithmic Forecasting: Evidence from India's National Egg Coordination Committee
+              </h2>
+              <div className="research-meta-row">
+                <span className="meta-badge author">Author: Prem Pastagia</span>
+                <span className="meta-badge affiliation">Independent Econometric Analytics</span>
+                <span className="meta-badge journal">Target: International Journal of Forecasting (IJF)</span>
+                <span className="meta-badge jel">JEL: C22, C53, Q11, Q13</span>
+              </div>
+            </div>
+
+            <div className="research-actions">
+              <button 
+                className={`action-btn-copy ${abstractCopied ? 'copied' : ''}`}
+                onClick={handleCopyAbstract}
+              >
+                {abstractCopied ? '✓ Abstract Copied to Clipboard!' : '📋 Copy Formal Abstract'}
+              </button>
+              <button 
+                className="action-btn-download"
+                onClick={handleDownloadAbstract}
+              >
+                📥 Download Submission (.md)
+              </button>
+            </div>
+          </div>
+
+          {/* Abstract Submission Box */}
+          <div className="glass-panel abstract-box">
+            <div className="abstract-box-header">
+              <span className="abstract-label">JOURNAL ABSTRACT (IJF SUBMISSION FORMAT)</span>
+              <span className="word-count-badge">268 Words • Empirical Econometrics</span>
+            </div>
+            <p className="abstract-content">
+              This study investigates the predictive performance of modern machine learning algorithms relative to parsimonious time-series models in commodity markets characterized by administered pricing mechanisms rather than continuous auction equilibria. Utilizing a reconstructed and forensically validated panel of daily wholesale egg prices from India's National Egg Coordination Committee (NECC)—comprising <strong>5,670 consecutive daily observations across 29 commercial centers from February 22, 2009 to July 11, 2026</strong>—we benchmark 31 forecasting models across 10 chronological rolling-origin evaluation windows.
+            </p>
+            <p className="abstract-content">
+              Pre-estimation diagnostics confirm that all series exhibit strict <span className="highlight-tag">I(1) unit root integration</span> with conditional heteroscedasticity, while Principal Component Analysis reveals a single dominant national factor accounting for <strong>46.4% of total price variance</strong>. Pairwise Granger causality establishes that the Southern production hub of Namakkal acts as an undisputed price leader, Granger-causing 27 of 28 destination markets (<em>p = 0.000</em>), with only the Northern center of Barwala (<em>p = 0.121</em>) operating autonomously.
+            </p>
+            <p className="abstract-content">
+              Across 4,060 out-of-sample evaluations, classical autoregressive models systematically dominate complex machine learning architectures: <strong>TBATS (MASE = 3.176), Naïve random-walk (MASE = 3.177), Holt-Winters (MASE = 3.179), and AutoARIMA (MASE = 3.192)</strong> outperform advanced tree ensembles, while boosting models suffer catastrophic generalization collapse (XGBoost MASE = 9.306; LightGBM MASE = 36.739). Furthermore, we uncover a stark <strong>"Regional Performance Paradox"</strong>: in Southern production strongholds where NECC committee coordination is absolute, machine learning collapses completely (Random Forest MASE = 10.21 vs. Naïve MASE = 3.83); conversely, in peripheral Northern and Central consumption centers where localized transportation frictions and informal markups bleed into transactions, tree ensembles gain a predictive advantage (Extra Trees achieving MASE = 2.049 in Indore and 2.747 in Lucknow). Finally, we formulate a horizon-aware structural ensemble (SARIMA for <em>h ≤ 14 days</em>, switching to Prophet for <em>h = 30 days</em>) that achieves a <strong>10.2% holdout error reduction</strong>.
+            </p>
+            <div className="abstract-keywords">
+              <strong>Keywords:</strong> Administered pricing, Agricultural commodity forecasting, National Egg Coordination Committee (NECC), Model parsimony, Regional performance paradox, Machine learning vs. Econometrics.
+            </div>
+          </div>
+
+          {/* 4 Empirical Pillars Grid */}
+          <div className="research-pillars-grid">
+            <div className="pillar-card glass-panel">
+              <div className="pillar-badge">PILLAR 1: PROVENANCE</div>
+              <h3>Forensic Data Reconstruction</h3>
+              <p className="pillar-lead">5,670 consecutive daily observations (2009–2026) across 29 mandis.</p>
+              <ul className="pillar-list">
+                <li>Audited and resolved a critical ASP.NET postback state replication bug in legacy archives.</li>
+                <li>Validated against regional APMC records with <strong>99.996% cross-archive agreement</strong>.</li>
+                <li>Zero synthetic artifacts; strict preservation of piecewise step-function pricing.</li>
+              </ul>
+            </div>
+
+            <div className="pillar-card glass-panel">
+              <div className="pillar-badge">PILLAR 2: LEADERSHIP</div>
+              <h3>Namakkal Price Leadership</h3>
+              <p className="pillar-lead">Granger Causality p = 0.000000 across 27 destination mandis.</p>
+              <ul className="pillar-list">
+                <li>Namakkal price revisions lead Delhi, Mumbai, Kolkata, and Chennai by 24–72 hours.</li>
+                <li><strong>Barwala (p = 0.121)</strong> acts as the sole autonomous northern supply pole.</li>
+                <li>PCA confirms PC1 accounts for <strong>46.4%</strong> of national price variance.</li>
+              </ul>
+            </div>
+
+            <div className="pillar-card glass-panel">
+              <div className="pillar-badge">PILLAR 3: PARADOX</div>
+              <h3>The Regional Performance Paradox</h3>
+              <p className="pillar-lead">Parsimony beats boosting in administered production centers.</p>
+              <ul className="pillar-list">
+                <li>In Southern strongholds, Naïve (3.83) crushes Random Forest (10.21) and XGBoost (9.31).</li>
+                <li>In North/Central consumer corridors (Indore, Lucknow), tree ensembles capture freight frictions.</li>
+                <li>Demonstrates that ML overfits committee revision noise when governance is monolithic.</li>
+              </ul>
+            </div>
+
+            <div className="pillar-card glass-panel">
+              <div className="pillar-badge">PILLAR 4: ENSEMBLE</div>
+              <h3>Horizon-Aware Dual Engine</h3>
+              <p className="pillar-lead">10.2% out-of-sample holdout error reduction.</p>
+              <ul className="pillar-list">
+                <li>SARIMA deployed for short bi-weekly procurement cycles (<em>h ≤ 14 days</em>).</li>
+                <li>Prophet deployed for longer monthly macro-cycles (<em>h = 30 days</em>).</li>
+                <li>Directly powers the terminal's live Cold Storage Holding Advisory.</li>
               </ul>
             </div>
           </div>
