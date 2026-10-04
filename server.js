@@ -21,10 +21,10 @@ function runScraper(month, year, type, format) {
     }
 
     return new Promise((resolve, reject) => {
-        const args = ['scrape_data.py', month, year, type];
+        const args = ['read_local_data.py', 'data/egg_prices_timeseries_final.csv', month, year, type];
         if (format === 'full') args.push('full');
 
-        const pythonProcess = spawn('python', args);
+        const pythonProcess = spawn('python3', args);
         let dataString = '';
         let errorString = '';
 
@@ -98,6 +98,39 @@ app.get('/api/egg-prices-history', async (req, res) => {
         console.error('History fetch error:', err.message);
         res.status(500).json({ error: err.message });
     }
+});
+
+// SARIMA Forecast endpoint — runs Python statsmodels SARIMA
+app.post('/api/forecast-sarima', express.json(), (req, res) => {
+    const { prices, dates, forecastDays } = req.body;
+    console.log(`Running SARIMA forecast: ${prices?.length} data points, ${forecastDays} days ahead`);
+
+    const pythonProcess = spawn('python3', ['sarima_forecast.py']);
+    let dataString = '';
+    let errorString = '';
+
+    // Send data via stdin
+    pythonProcess.stdin.write(JSON.stringify({ prices, dates, forecastDays }));
+    pythonProcess.stdin.end();
+
+    pythonProcess.stdout.on('data', (data) => {
+        dataString += data.toString();
+    });
+    pythonProcess.stderr.on('data', (data) => {
+        errorString += data.toString();
+    });
+    pythonProcess.on('close', (code) => {
+        if (code !== 0) {
+            console.error('SARIMA error:', errorString);
+            return res.status(500).json({ error: errorString || 'SARIMA failed', fallback: true });
+        }
+        try {
+            const jsonData = JSON.parse(dataString);
+            res.json(jsonData);
+        } catch (e) {
+            res.status(500).json({ error: 'Failed to parse SARIMA output', fallback: true });
+        }
+    });
 });
 
 const __filename = fileURLToPath(import.meta.url);

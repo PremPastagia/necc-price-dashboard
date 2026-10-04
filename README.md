@@ -32,7 +32,7 @@ A real-time egg price dashboard that fetches live data from the National Egg Coo
 
 ```bash
 # Clone the repository
-git clone https://github.com/somebodyishere-kgp/ncee.git
+git clone https://github.com/PremPastagia/ncee.git
 cd ncee
 
 # Install Node dependencies

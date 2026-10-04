@@ -6,6 +6,7 @@ import concurrent.futures
 import requests
 from bs4 import BeautifulSoup
 
+
 def scrape_necc(month="01", year="2026", report_type="Daily Rate Sheet"):
     url = "https://e2necc.com/home/eggprice"
     payload = {
@@ -18,7 +19,7 @@ def scrape_necc(month="01", year="2026", report_type="Daily Rate Sheet"):
     
     try:
         s = requests.Session()
-        r1 = s.get(url)
+        r1 = s.get(url, timeout=10)
         soup1 = BeautifulSoup(r1.text, 'html.parser')
         
         for hidden in soup1.find_all("input", type="hidden"):
@@ -39,6 +40,7 @@ def scrape_necc(month="01", year="2026", report_type="Daily Rate Sheet"):
         return data
     except Exception as e:
         return {"error": str(e)}
+
 
 def clean_data_full(raw_data, month, year):
     if isinstance(raw_data, dict) and "error" in raw_data:
@@ -83,6 +85,7 @@ def clean_data_full(raw_data, month, year):
             })
     return cities_data
 
+
 def fetch_month_data(m, y, report_type):
     try:
         raw_data = scrape_necc(m, y, report_type)
@@ -93,6 +96,7 @@ def fetch_month_data(m, y, report_type):
         return {"month": m, "year": y, "data": cleaned_data}
     except Exception as e:
         return {"month": m, "year": y, "data": [], "error": str(e)}
+
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):

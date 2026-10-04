@@ -13,11 +13,24 @@ import { ForecastChart } from './components/ForecastChart';
 import { ForecastControls } from './components/ForecastControls';
 import MarketAnalysis from './components/MarketAnalysis';
 import RiskAnalysis from './components/RiskAnalysis';
+import Login from './components/Login';
+import ClientDashboard from './components/ClientDashboard';
 import { generateForecast, movingAverage } from './utils/forecasting';
 import eggLogo from './assets/egg_logo.svg';
 
 function App() {
-  const [mode, setMode] = useState('daily'); // 'daily', 'trend', 'forecast', 'market-analysis', 'risk-analysis'
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('currentUser');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [mode, setMode] = useState('daily'); // 'daily', 'trend', 'forecast', 'market-analysis', 'risk-analysis', 'client-portal'
   const [sheetType, setSheetType] = useState('daily'); // 'daily' or 'monthly'
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
@@ -32,7 +45,7 @@ function App() {
 
   // Forecast state
   const [forecastDays, setForecastDays] = useState(5);
-  const [forecastModel, setForecastModel] = useState('seasonal');
+  const [forecastModel, setForecastModel] = useState('sarima');
   const [selectedCity, setSelectedCity] = useState('all');
   const [historicalData, setHistoricalData] = useState([]);
   const [forecastResult, setForecastResult] = useState({ forecast: [], metrics: {} });
@@ -93,39 +106,58 @@ function App() {
   }, [selectedDate, sheetType]);
 
   // ──────────────────────────────────────────────
-  // FETCH 2: Full daily data for current month (Trends tab)
+  // FETCH 2: Full daily data for Date Range (Trends tab)
   // ──────────────────────────────────────────────
   useEffect(() => {
     if (mode !== 'trend') return;
     const fetchFullData = async () => {
       setTrendLoading(true);
       try {
-        const dateObj = new Date(selectedDate);
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const year = String(dateObj.getFullYear());
-
-        const response = await fetch(`/api/egg-prices?month=${month}&year=${year}&type=Daily+Rate+Sheet&format=full`);
-        const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setFullDailyData(data);
-          // Build trend from average daily price across all cities
-          const dayMap = {};
-          data.forEach(city => {
-            if (city.dailyPrices) {
-              city.dailyPrices.forEach(dp => {
-                if (!dayMap[dp.date]) dayMap[dp.date] = [];
-                dayMap[dp.date].push(dp.price);
+        const start = new Date(range.start);
+        const end = new Date(range.end);
+        
+        let current = new Date(start.getFullYear(), start.getMonth(), 1);
+        const endLimit = new Date(end.getFullYear(), end.getMonth(), 1);
+        
+        const promises = [];
+        // Loop through every month within the range
+        while (current <= endLimit) {
+          const month = String(current.getMonth() + 1).padStart(2, '0');
+          const year = String(current.getFullYear());
+          promises.push(
+            fetch(`/api/egg-prices?month=${month}&year=${year}&type=Daily+Rate+Sheet&format=full`).then(r => r.json())
+          );
+          current.setMonth(current.getMonth() + 1);
+        }
+        
+        const responses = await Promise.all(promises);
+        
+        const dayMap = {};
+        responses.forEach(data => {
+            if (Array.isArray(data)) {
+              data.forEach(city => {
+                if (city.dailyPrices) {
+                  city.dailyPrices.forEach(dp => {
+                    const dpDate = new Date(dp.date);
+                    // Filter dates strictly between range.start and range.end
+                    if (dpDate >= start && dpDate <= end) {
+                        if (!dayMap[dp.date]) dayMap[dp.date] = [];
+                        dayMap[dp.date].push(dp.price);
+                    }
+                  });
+                }
               });
             }
-          });
-          const trendData = Object.entries(dayMap)
+        });
+        
+        const trendData = Object.entries(dayMap)
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([date, prices]) => ({
               date,
               price: (prices.reduce((s, p) => s + p, 0) / prices.length).toFixed(2)
             }));
-          setCurrentTrend(trendData);
-        }
+            
+        setCurrentTrend(trendData);
       } catch (err) {
         console.error("Failed to fetch full daily data:", err);
       } finally {
@@ -133,7 +165,7 @@ function App() {
       }
     };
     fetchFullData();
-  }, [mode, selectedDate]);
+  }, [mode, range]);
 
   // ──────────────────────────────────────────────
   // FETCH 3: Multi-month history (Forecast, Market Analysis, Risk Analysis)
@@ -164,64 +196,126 @@ function App() {
   // ──────────────────────────────────────────────
   useEffect(() => {
     if (mode !== 'forecast' || !historyData) return;
-    setForecastLoading(true);
 
-    try {
-      // Extract daily prices for selected city (or average all cities)
-      const historicalPrices = [];
+    const runForecast = async () => {
+      setForecastLoading(true);
 
-      historyData.forEach(monthData => {
-        if (!monthData.data || !Array.isArray(monthData.data)) return;
+      try {
+        // Extract daily prices for selected city (or average all cities)
+        const historicalPrices = [];
 
-        monthData.data.forEach(city => {
-          if (!city.dailyPrices) return;
-          if (selectedCity !== 'all' && city.city !== selectedCity) return;
+        historyData.forEach(monthData => {
+          if (!monthData.data || !Array.isArray(monthData.data)) return;
 
-          city.dailyPrices.forEach(dp => {
-            historicalPrices.push({ date: dp.date, price: dp.price, city: city.city });
+          monthData.data.forEach(city => {
+            if (!city.dailyPrices) return;
+            if (selectedCity !== 'all' && city.city !== selectedCity) return;
+
+            city.dailyPrices.forEach(dp => {
+              historicalPrices.push({ date: dp.date, price: dp.price, city: city.city });
+            });
           });
         });
-      });
 
-      // If "all cities", average prices per day
-      let processedData;
-      if (selectedCity === 'all') {
-        const dayMap = {};
-        historicalPrices.forEach(hp => {
-          if (!dayMap[hp.date]) dayMap[hp.date] = [];
-          dayMap[hp.date].push(hp.price);
-        });
-        processedData = Object.entries(dayMap)
-          .sort(([a], [b]) => a.localeCompare(b))
-          .map(([date, prices]) => ({
-            date,
-            price: (prices.reduce((s, p) => s + p, 0) / prices.length).toFixed(2)
-          }));
-      } else {
-        processedData = historicalPrices
-          .filter(hp => hp.city === selectedCity)
-          .sort((a, b) => a.date.localeCompare(b.date))
-          .map(hp => ({ date: hp.date, price: hp.price.toFixed ? hp.price.toFixed(2) : String(hp.price) }));
+        // If "all cities", average prices per day
+        let processedData;
+        if (selectedCity === 'all') {
+          const dayMap = {};
+          historicalPrices.forEach(hp => {
+            if (!dayMap[hp.date]) dayMap[hp.date] = [];
+            dayMap[hp.date].push(hp.price);
+          });
+          processedData = Object.entries(dayMap)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([date, prices]) => ({
+              date,
+              price: parseFloat((prices.reduce((s, p) => s + p, 0) / prices.length).toFixed(2))
+            }));
+        } else {
+          processedData = historicalPrices
+            .filter(hp => hp.city === selectedCity)
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map(hp => ({ date: hp.date, price: typeof hp.price === 'number' ? hp.price : parseFloat(hp.price) }));
+        }
+
+        setHistoricalData(processedData);
+
+        if (processedData.length < 3) {
+          setForecastLoading(false);
+          return;
+        }
+
+        // ── SARIMA: Call Python backend ──
+        if (forecastModel === 'sarima') {
+          try {
+            const response = await fetch('/api/forecast-sarima', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prices: processedData.map(d => d.price),
+                dates: processedData.map(d => d.date),
+                forecastDays: forecastDays
+              })
+            });
+            const sarimaResult = await response.json();
+
+            if (sarimaResult.error || sarimaResult.fallback) {
+              // Fallback to JS seasonal model
+              console.warn('SARIMA fallback:', sarimaResult.error);
+              const fallback = generateForecast(
+                processedData.map(d => ({ date: d.date, price: d.price.toFixed(2) })),
+                forecastDays, 'seasonal'
+              );
+              setForecastResult(fallback);
+            } else {
+              setForecastResult(sarimaResult);
+            }
+          } catch (apiErr) {
+            console.error('SARIMA API error:', apiErr);
+            // Fallback
+            const fallback = generateForecast(
+              processedData.map(d => ({ date: d.date, price: d.price.toFixed(2) })),
+              forecastDays, 'seasonal'
+            );
+            setForecastResult(fallback);
+          }
+        } else {
+          // ── JS Models (seasonal, wma, ets) ──
+          const result = generateForecast(
+            processedData.map(d => ({ date: d.date, price: d.price.toFixed(2) })),
+            forecastDays, forecastModel
+          );
+          setForecastResult(result);
+        }
+      } catch (err) {
+        console.error("Failed to process forecast data:", err);
+      } finally {
+        setForecastLoading(false);
       }
+    };
 
-      // Sample to monthly-ish points for forecast model (too many daily points can overwhelm)
-      const sampledData = processedData.length > 30
-        ? processedData.filter((_, i) => i % Math.max(1, Math.floor(processedData.length / 30)) === 0)
-        : processedData;
-
-      setHistoricalData(sampledData);
-
-      if (sampledData.length >= 3) {
-        const result = generateForecast(sampledData, forecastDays, forecastModel);
-        setForecastResult(result);
-      }
-    } catch (err) {
-      console.error("Failed to process forecast data:", err);
-    } finally {
-      setForecastLoading(false);
-    }
+    runForecast();
   }, [mode, historyData, selectedCity, forecastDays, forecastModel]);
 
+  const handleLogin = (userData) => {
+    localStorage.setItem('isLoggedIn', 'true');
+    if (userData) {
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      setCurrentUser(userData);
+    }
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('currentUser');
+    setCurrentUser(null);
+    setIsLoggedIn(false);
+  };
+
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   return (
     <div className="app-container">
@@ -232,10 +326,35 @@ function App() {
           <span className="logo-text">NECC <span className="highlight">EGGPRICE</span></span>
         </div>
         <nav>
-          <a href="#stats">Statistics</a>
-          <a href="#insights">Insights</a>
+          <button
+            className={`nav-mode-btn ${mode === 'client-portal' ? 'active' : ''}`}
+            onClick={() => { setMode('client-portal'); document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }); }}
+            style={{
+              background: mode === 'client-portal' ? 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)' : 'rgba(255,255,255,0.08)',
+              color: mode === 'client-portal' ? '#0D1137' : '#FFD700',
+              border: '1px solid rgba(255,215,0,0.35)',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              boxShadow: mode === 'client-portal' ? '0 0 15px rgba(255,215,0,0.4)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            💼 Client Trade Hub
+          </button>
+          <a href="#stats" onClick={() => setMode('daily')}>Statistics</a>
+          <a href="#insights" onClick={() => setMode('market-analysis')}>Insights</a>
           <a href="#prices">Live Prices</a>
-          <button className="cta-btn">2009-2026 Data</button>
+          {currentUser && (
+            <span style={{ fontSize: '0.8rem', color: '#FFD700', background: 'rgba(255,215,0,0.1)', padding: '5px 12px', borderRadius: '20px', border: '1px solid rgba(255,215,0,0.25)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span>👤</span>
+              <strong>{currentUser.name}</strong>
+              <span style={{ opacity: 0.7, fontSize: '0.75rem' }}>({currentUser.badge || currentUser.role})</span>
+            </span>
+          )}
+          <button className="cta-btn" onClick={handleLogout}>Logout</button>
         </nav>
       </header>
 
@@ -275,7 +394,11 @@ function App() {
         />
 
         <div className="visual-grid animate-in">
-          {mode === 'daily' ? (
+          {mode === 'client-portal' ? (
+            <div className="visual-card glass-card span-2" style={{ padding: '0', background: 'transparent', border: 'none' }}>
+              <ClientDashboard livePrices={livePrices} availableCities={availableCities} user={currentUser} />
+            </div>
+          ) : mode === 'daily' ? (
             <>
               <div className="visual-card glass-card">
                 <h3>State-wise Contribution</h3>
@@ -359,7 +482,7 @@ function App() {
                 {(forecastLoading || historyLoading) ? (
                   <div className="forecast-loading">
                     <div className="loading-spinner"></div>
-                    <p>{historyLoading ? 'Fetching 6 months of actual NECC price data...' : 'Analyzing historical data and generating predictions...'}</p>
+                    <p>{historyLoading ? 'Fetching 6 months of actual NECC price data...' : forecastModel === 'sarima' ? '🔬 Running SARIMA model via Python statsmodels...' : 'Analyzing historical data and generating predictions...'}</p>
                   </div>
                 ) : (
                   <ForecastChart
@@ -373,12 +496,24 @@ function App() {
 
               <div className="forecast-description">
                 <p>
-                  <strong>📊 Analysis:</strong> This forecast uses
-                  {forecastModel === 'seasonal' ? ' Seasonal Decomposition' :
+                  <strong>📊 Model:</strong> This forecast uses
+                  {forecastModel === 'sarima' ? ' SARIMA (Seasonal AutoRegressive Integrated Moving Average) via Python statsmodels' :
+                    forecastModel === 'seasonal' ? ' Seasonal Decomposition' :
                     forecastModel === 'wma' ? ' Weighted Moving Average' :
                       ' Exponential Smoothing'} on <strong>actual NECC price data</strong> from the last 6 months
-                  to predict future egg prices. The shaded area represents the 95% confidence interval.
+                  to predict the next {forecastDays} days of egg prices. The shaded area represents the 95% confidence interval.
                 </p>
+                {forecastResult.diagnostics && (
+                  <p style={{ marginTop: '10px', fontSize: '0.85rem', color: 'var(--text-dim)' }}>
+                    <strong>📐 Diagnostics:</strong> {forecastResult.diagnostics.model} | 
+                    AIC: {forecastResult.diagnostics.aic} | 
+                    BIC: {forecastResult.diagnostics.bic} | 
+                    R²: {forecastResult.diagnostics.rSquared} | 
+                    Data points: {forecastResult.diagnostics.dataPoints} | 
+                    Seasonal period: {forecastResult.diagnostics.seasonalPeriod} days
+                    {forecastResult.diagnostics.ljungBoxPValue !== null && ` | Ljung-Box p: ${forecastResult.diagnostics.ljungBoxPValue}`}
+                  </p>
+                )}
               </div>
             </div>
           )}

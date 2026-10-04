@@ -67,8 +67,9 @@ export const ForecastControls = ({
                         value={model}
                         onChange={(e) => setModel(e.target.value)}
                         className="city-select model-select"
-                        style={{ minWidth: '180px' }}
+                        style={{ minWidth: '220px' }}
                     >
+                        <option value="sarima">📐 SARIMA (statsmodels)</option>
                         <option value="seasonal">Seasonal Decomposition</option>
                         <option value="wma">Weighted Moving Avg</option>
                         <option value="ets">Exponential Smoothing (ETS)</option>

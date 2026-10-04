@@ -15,6 +15,7 @@ import {
   ScatterRegressionPlot,
   CorrelationGauge,
 } from './MarketAnalysisCharts';
+import './MarketAnalysis.css';
 
 /**
  * Static version of historical price generation (for chart props)

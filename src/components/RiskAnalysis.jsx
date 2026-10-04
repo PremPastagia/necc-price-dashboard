@@ -13,6 +13,7 @@ import {
   RollingCVChart,
   ComparativeRiskBars,
 } from './RiskAnalysisCharts';
+import './RiskAnalysis.css';
 
 /**
  * Extract actual NECC prices from history data for a given city

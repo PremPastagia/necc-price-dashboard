@@ -1,0 +1,376 @@
+/* Market Analysis Section Container */
+.market-analysis-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header */
+.ma-header {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.ma-header-icon {
+  font-size: 2rem;
+}
+
+.ma-title {
+  margin-bottom: 5px;
+  color: var(--primary);
+}
+
+.ma-subtitle {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+/* Selectors Area */
+.ma-selectors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.ma-selector-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 250px;
+  gap: 8px;
+}
+
+.duration-group {
+  min-width: unset;
+  flex: 0;
+}
+
+.ma-sel-badge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.producer-badge {
+  background: rgba(0, 229, 255, 0.12);
+  color: #00E5FF;
+  border-color: rgba(0, 229, 255, 0.2);
+}
+
+.consumer-badge {
+  background: rgba(255, 109, 0, 0.12);
+  color: #FF6D00;
+  border-color: rgba(255, 109, 0, 0.2);
+}
+
+.duration-badge {
+  background: rgba(255, 215, 0, 0.12);
+  color: #FFD700;
+  border-color: rgba(255, 215, 0, 0.2);
+}
+
+.ma-select {
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 100%;
+}
+
+.ma-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.ma-select option {
+  background: #0d1137;
+}
+
+.ma-vs-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 12px;
+}
+
+.ma-vs-text {
+  font-weight: bold;
+  color: var(--text-dim);
+}
+
+.ma-duration-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.ma-dur-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ma-dur-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ma-dur-btn.active {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: #FFD700;
+  color: #FFD700;
+}
+
+/* Results Content */
+.ma-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.4s ease;
+}
+
+.ma-integration-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 5px solid;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.ma-banner-left {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ma-banner-level {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.ma-banner-desc {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+}
+
+.ma-banner-right {
+  display: flex;
+  gap: 30px;
+}
+
+.ma-banner-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.ma-banner-stat-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.ma-banner-stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Stat Cards */
+.ma-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.ma-stat-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  border-top: 3px solid;
+}
+
+.producer-card { border-top-color: #00E5FF; }
+.dispersion-card { border-top-color: #FFD700; }
+.consumer-card { border-top-color: #FF6D00; }
+
+.ma-stat-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.ma-stat-icon {
+  font-size: 1.2rem;
+}
+
+.ma-stat-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.ma-stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ma-stat-row:last-child {
+  border-bottom: none;
+}
+
+.ma-stat-val {
+  font-weight: 600;
+}
+
+/* Charts Rows */
+.ma-charts-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.ma-chart-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.ma-chart-wide {
+  flex: 2;
+  min-width: 500px;
+}
+
+.ma-chart-narrow {
+  flex: 1;
+  min-width: 300px;
+}
+
+.ma-chart-mid {
+  flex: 1;
+  min-width: 400px;
+}
+
+.ma-chart-title {
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ma-chart-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.ma-chart-svg {
+  width: 100%;
+  height: auto;
+  min-height: 250px;
+  display: block;
+}
+
+.ma-regression-eq {
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.ma-eq-label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.ma-eq-formula {
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #00E5FF;
+  margin-bottom: 10px;
+}
+
+.ma-eq-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Interpretation Block */
+.ma-interpretation {
+  flex: 1;
+  min-width: 350px;
+}
+
+.ma-interpret-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.ma-interpret-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.ma-interpret-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.ma-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  color: var(--text-dim);
+  gap: 15px;
+}
+
+@media (max-width: 900px) {
+  .ma-charts-row {
+    flex-direction: column;
+  }
+  .ma-chart-wide, .ma-chart-narrow, .ma-chart-mid, .ma-interpretation {
+    min-width: 100%;
+  }
+  .ma-banner-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
