@@ -18,6 +18,37 @@ import ClientDashboard from './components/ClientDashboard';
 import { generateForecast, movingAverage } from './utils/forecasting';
 import eggLogo from './assets/egg_logo.svg';
 
+const ALL_PERSONAS = [
+  {
+    email: 'farmer@namakkal-poultry.com',
+    name: 'Sengottai Perumal',
+    role: 'Layer Farm Producer (50k Birds)',
+    organization: 'Namakkal Poultry Producers Consortium',
+    badge: '🌾 Layer Producer'
+  },
+  {
+    email: 'trader@vashi-mandi.com',
+    name: 'Rajesh Gounder',
+    role: 'Commercial Mandi Wholesaler',
+    organization: 'Apex Poultry Logistics & Trading Co.',
+    badge: '🏢 Mandi Wholesaler'
+  },
+  {
+    email: 'buyer@freshmart.in',
+    name: 'Ananya Rao',
+    role: 'Procurement Director',
+    organization: 'FreshMart Supermarkets India',
+    badge: '🛒 Retail Buyer'
+  },
+  {
+    email: 'admin@necc.com',
+    name: 'NECC Administrator',
+    role: 'Committee Executive & Analyst',
+    organization: 'National Egg Coordination Committee',
+    badge: '📊 NECC Executive'
+  }
+];
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('isLoggedIn') === 'true';
@@ -25,12 +56,12 @@ function App() {
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('currentUser');
-      return saved ? JSON.parse(saved) : null;
+      return saved ? JSON.parse(saved) : ALL_PERSONAS[0];
     } catch (e) {
-      return null;
+      return ALL_PERSONAS[0];
     }
   });
-  const [mode, setMode] = useState('daily'); // 'daily', 'trend', 'forecast', 'market-analysis', 'risk-analysis', 'client-portal'
+  const [mode, setMode] = useState('client-portal'); // Default to Client Trading Terminal
   const [sheetType, setSheetType] = useState('daily'); // 'daily' or 'monthly'
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
@@ -313,87 +344,206 @@ function App() {
     setIsLoggedIn(false);
   };
 
+  const handleCyclePersona = () => {
+    const currentIndex = ALL_PERSONAS.findIndex(p => p.email === currentUser?.email);
+    const nextIndex = (currentIndex + 1) % ALL_PERSONAS.length;
+    const nextPersona = ALL_PERSONAS[nextIndex];
+    localStorage.setItem('currentUser', JSON.stringify(nextPersona));
+    setCurrentUser(nextPersona);
+  };
+
   if (!isLoggedIn) {
     return <Login onLogin={handleLogin} />;
   }
 
   return (
     <div className="app-container">
-      {/* Header */}
-      <header className="main-header animate-in">
-        <div className="logo">
-          <img src={eggLogo} alt="NECC Logo" className="logo-img" />
-          <span className="logo-text">NECC <span className="highlight">EGGPRICE</span></span>
-        </div>
-        <nav>
-          <button
-            className={`nav-mode-btn ${mode === 'client-portal' ? 'active' : ''}`}
-            onClick={() => { setMode('client-portal'); document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }); }}
-            style={{
-              background: mode === 'client-portal' ? 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)' : 'rgba(255,255,255,0.08)',
-              color: mode === 'client-portal' ? '#0D1137' : '#FFD700',
-              border: '1px solid rgba(255,215,0,0.35)',
-              padding: '6px 14px',
-              borderRadius: '20px',
-              fontWeight: 700,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              boxShadow: mode === 'client-portal' ? '0 0 15px rgba(255,215,0,0.4)' : 'none',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            💼 Client Trade Hub
-          </button>
-          <a href="#stats" onClick={() => setMode('daily')}>Statistics</a>
-          <a href="#insights" onClick={() => setMode('market-analysis')}>Insights</a>
-          <a href="#prices">Live Prices</a>
-          {currentUser && (
-            <span style={{ fontSize: '0.8rem', color: '#FFD700', background: 'rgba(255,215,0,0.1)', padding: '5px 12px', borderRadius: '20px', border: '1px solid rgba(255,215,0,0.25)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-              <span>👤</span>
-              <strong>{currentUser.name}</strong>
-              <span style={{ opacity: 0.7, fontSize: '0.75rem' }}>({currentUser.badge || currentUser.role})</span>
-            </span>
-          )}
-          <button className="cta-btn" onClick={handleLogout}>Logout</button>
-        </nav>
-      </header>
-
-      {/* Hero Section */}
-      <section className="hero-section section-container">
-        <div className="hero-content animate-in">
-          <h1 className="floating">Revolutionizing <span className="gradient-text">Poultry Insights</span></h1>
-          <p className="hero-subtitle">Providing transparent, data-driven decision making for the Indian poultry sector since 1982.</p>
-
-          <div className="hero-stats">
-            <div className="stat-card glass-card">
-              <span className="stat-value">{stats2025.totalProduction} B</span>
-              <span className="stat-label">Total Production (24-25)</span>
+      {/* Modern Institutional Terminal Navigation Bar */}
+      <header className="terminal-nav-bar animate-in">
+        <div className="terminal-brand-group">
+          <img src={eggLogo} alt="NECC Logo" className="terminal-nav-logo" />
+          <div>
+            <div className="terminal-nav-title">
+              NECC <span className="highlight-gold">COMMODITY TERMINAL</span>
             </div>
-            <div className="stat-card glass-card">
-              <span className="stat-value">{stats2025.globalRank}</span>
-              <span className="stat-label">Global Rank (FAO)</span>
-            </div>
-            <div className="stat-card glass-card">
-              <span className="stat-value">{stats2025.perCapita}</span>
-              <span className="stat-label">Per Capita Availability</span>
+            <div className="terminal-market-status">
+              <span className="live-dot"></span>
+              <span>29 MANDIS CONNECTED</span>
+              <span className="status-separator">•</span>
+              <span className="benchmark-quote">NATL BENCHMARK: ₹{priceStats?.avg || '5.18'}/egg</span>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Selection Section */}
-      <section className="selection-section section-container" id="stats">
-        <h2 className="section-title">Market Intelligence</h2>
-        <SelectionBar
-          mode={mode}
-          setMode={setMode}
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-          range={range}
-          onRangeChange={setRange}
-        />
+        {/* Workstation Mode Switcher Tabs */}
+        <div className="terminal-mode-pills">
+          <button
+            className={`terminal-pill-btn ${mode === 'client-portal' ? 'active' : ''}`}
+            onClick={() => setMode('client-portal')}
+          >
+            💼 Client Terminal & Ledger
+          </button>
+          <button
+            className={`terminal-pill-btn ${mode === 'prices' ? 'active' : ''}`}
+            onClick={() => setMode('prices')}
+          >
+            📊 29-Mandi Price Board
+          </button>
+          <button
+            className={`terminal-pill-btn ${mode === 'trend' ? 'active' : ''}`}
+            onClick={() => setMode('trend')}
+          >
+            📈 Price Trends
+          </button>
+          <button
+            className={`terminal-pill-btn ${mode === 'forecast' ? 'active' : ''}`}
+            onClick={() => setMode('forecast')}
+          >
+            🔮 Deep SARIMA Forecast
+          </button>
+          <button
+            className={`terminal-pill-btn ${mode === 'market-analysis' ? 'active' : ''}`}
+            onClick={() => setMode('market-analysis')}
+          >
+            🔗 Market Integration
+          </button>
+          <button
+            className={`terminal-pill-btn ${mode === 'risk-analysis' ? 'active' : ''}`}
+            onClick={() => setMode('risk-analysis')}
+          >
+            ⚠️ Risk Index
+          </button>
+          <button
+            className={`terminal-pill-btn ${mode === 'daily' ? 'active' : ''}`}
+            onClick={() => setMode('daily')}
+          >
+            🌾 Production Stats
+          </button>
+        </div>
 
-        <div className="visual-grid animate-in">
+        {/* User Persona Switcher & Logout */}
+        <div className="terminal-nav-right">
+          {currentUser && (
+            <button
+              className="persona-switch-pill"
+              onClick={handleCyclePersona}
+              title="Click to switch persona: Producer ⇄ Trader ⇄ Retailer ⇄ Analyst"
+            >
+              <span className="p-badge-label">{currentUser.badge || '👤 Client'}</span>
+              <strong className="p-name-label">{currentUser.name.split(' ')[0]}</strong>
+              <span className="p-switch-hint">🔄 Switch</span>
+            </button>
+          )}
+          <button className="terminal-signout-btn" onClick={handleLogout} title="Sign Out">
+            Sign Out
+          </button>
+        </div>
+      </header>
+
+      {/* Main Terminal Workspace */}
+      <main className="terminal-main-workspace section-container">
+        {mode === 'client-portal' ? (
+          <div className="client-portal-wrapper animate-in">
+            <ClientDashboard livePrices={livePrices} availableCities={availableCities} user={currentUser} />
+          </div>
+        ) : mode === 'prices' ? (
+          <section className="price-section animate-in" id="prices">
+            <div className="price-header">
+              <h2 className="section-title">
+                {sheetType === 'monthly' ? 'Monthly Average Prices' : 'Daily Suggested Prices'}
+                {loading && <span className="loader-small">⚡ Fetching...</span>}
+              </h2>
+              <div className="sheet-toggle">
+                <button
+                  className={`toggle-btn ${sheetType === 'daily' ? 'active' : ''}`}
+                  onClick={() => setSheetType('daily')}
+                >
+                  📅 Daily
+                </button>
+                <button
+                  className={`toggle-btn ${sheetType === 'monthly' ? 'active' : ''}`}
+                  onClick={() => setSheetType('monthly')}
+                >
+                  📊 Monthly Avg
+                </button>
+              </div>
+            </div>
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder="🔍 Search city..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+              <span className="result-count">{filteredPrices.length} cities</span>
+            </div>
+
+            {priceStats && (
+              <div className="quick-stats">
+                <div className="quick-stat lowest">
+                  <span className="qs-label">📉 Lowest</span>
+                  <span className="qs-value">₹{priceStats.min.toFixed(2)}</span>
+                  <span className="qs-city">{priceStats.minCity}</span>
+                </div>
+                <div className="quick-stat average">
+                  <span className="qs-label">📊 Average</span>
+                  <span className="qs-value">₹{priceStats.avg}</span>
+                  <span className="qs-city">All Cities</span>
+                </div>
+                <div className="quick-stat highest">
+                  <span className="qs-label">📈 Highest</span>
+                  <span className="qs-value">₹{priceStats.max.toFixed(2)}</span>
+                  <span className="qs-city">{priceStats.maxCity}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="price-table-container glass-panel animate-in">
+              <table className="price-table">
+                <thead>
+                  <tr>
+                    <th>Production Center</th>
+                    <th>{sheetType === 'monthly' ? 'Monthly Avg (1 Pc)' : 'Price (1 Pc)'}</th>
+                    <th>Tray (30 Pc)</th>
+                    <th>Box (180 Pc)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>⚡ Loading live data from NECC...</td></tr>
+                  ) : filteredPrices.length > 0 ? (
+                    filteredPrices.map(p => (
+                      <tr key={p.city}>
+                        <td>{p.city}</td>
+                        <td className="price-primary">₹ {p.price.toFixed(2)}</td>
+                        <td>₹ {p.tray30.toFixed(2)}</td>
+                        <td>₹ {p.box180.toFixed(0)}</td>
+                        <td><span className={`tag-${sheetType === 'monthly' ? 'monthly' : 'up'}`}>● {sheetType === 'monthly' ? 'Avg' : 'Live'}</span></td>
+                      </tr>
+                    ))
+                  ) : livePrices.length > 0 ? (
+                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>No cities match "{searchQuery}"</td></tr>
+                  ) : (
+                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>Select a date to fetch live prices</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : (
+          <section className="selection-section" id="stats">
+            <SelectionBar
+              mode={mode}
+              setMode={setMode}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              range={range}
+              onRangeChange={setRange}
+            />
+
+            <div className="visual-grid animate-in">
           {mode === 'client-portal' ? (
             <div className="visual-card glass-card span-2" style={{ padding: '0', background: 'transparent', border: 'none' }}>
               <ClientDashboard livePrices={livePrices} availableCities={availableCities} user={currentUser} />
@@ -518,127 +668,18 @@ function App() {
             </div>
           )}
         </div>
-      </section>
-
-      {/* Price Board */}
-      <section className="price-section section-container" id="prices">
-        <div className="price-header">
-          <h2 className="section-title">
-            {sheetType === 'monthly' ? 'Monthly Average Prices' : 'Daily Suggested Prices'}
-            {loading && <span className="loader-small">⚡ Fetching...</span>}
-          </h2>
-          <div className="sheet-toggle">
-            <button
-              className={`toggle-btn ${sheetType === 'daily' ? 'active' : ''}`}
-              onClick={() => setSheetType('daily')}
-            >
-              📅 Daily
-            </button>
-            <button
-              className={`toggle-btn ${sheetType === 'monthly' ? 'active' : ''}`}
-              onClick={() => setSheetType('monthly')}
-            >
-              📊 Monthly Avg
-            </button>
-          </div>
-        </div>
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="🔍 Search city..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-          <span className="result-count">{filteredPrices.length} cities</span>
-        </div>
-
-        {priceStats && (
-          <div className="quick-stats">
-            <div className="quick-stat lowest">
-              <span className="qs-label">📉 Lowest</span>
-              <span className="qs-value">₹{priceStats.min.toFixed(2)}</span>
-              <span className="qs-city">{priceStats.minCity}</span>
-            </div>
-            <div className="quick-stat average">
-              <span className="qs-label">📊 Average</span>
-              <span className="qs-value">₹{priceStats.avg}</span>
-              <span className="qs-city">All Cities</span>
-            </div>
-            <div className="quick-stat highest">
-              <span className="qs-label">📈 Highest</span>
-              <span className="qs-value">₹{priceStats.max.toFixed(2)}</span>
-              <span className="qs-city">{priceStats.maxCity}</span>
-            </div>
-          </div>
+          </section>
         )}
-
-        <div className="price-table-container glass-panel animate-in">
-          <table className="price-table">
-            <thead>
-              <tr>
-                <th>Production Center</th>
-                <th>{sheetType === 'monthly' ? 'Monthly Avg (1 Pc)' : 'Price (1 Pc)'}</th>
-                <th>Tray (30 Pc)</th>
-                <th>Box (180 Pc)</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>⚡ Loading live data from NECC...</td></tr>
-              ) : filteredPrices.length > 0 ? (
-                filteredPrices.map(p => (
-                  <tr key={p.city}>
-                    <td>{p.city}</td>
-                    <td className="price-primary">₹ {p.price.toFixed(2)}</td>
-                    <td>₹ {p.tray30.toFixed(2)}</td>
-                    <td>₹ {p.box180.toFixed(0)}</td>
-                    <td><span className={`tag-${sheetType === 'monthly' ? 'monthly' : 'up'}`}>● {sheetType === 'monthly' ? 'Avg' : 'Live'}</span></td>
-                  </tr>
-                ))
-              ) : livePrices.length > 0 ? (
-                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>No cities match "{searchQuery}"</td></tr>
-              ) : (
-                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>Select a date to fetch live prices</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Species Distribution */}
-      <section className="insights-section section-container" id="insights">
-        <div className="split-view">
-          <div className="insight-text">
-            <h2>Species-wise Contribution</h2>
-            <p>A detailed breakdown of egg production across various fowl and duck species in the 2024-25 fiscal year.</p>
-            <div className="species-list">
-              {speciesDistribution.map(s => (
-                <div key={s.name} className="species-item">
-                  <span className="s-name">{s.name}</span>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${s.percentage}%` }}></div>
-                  </div>
-                  <span className="s-val">{s.percentage}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="insight-visual floating">
-            <div className="egg-3d">🥚</div>
-          </div>
-        </div>
-      </section>
+      </main>
 
       {/* Footer */}
       <footer className="main-footer section-container">
         <p className="disclaimer">
-          <strong>Disclaimer:</strong> The daily egg prices suggested by NECC are merely suggestive and not mandatory.
-          They are published solely for the reference and information of the trade and industry.
+          <strong>Disclaimer:</strong> The daily egg prices suggested by NECC are indicative benchmarks published for trade information.
+          Market analytics, SARIMA econometric projections, and trade ledgers are designed for institutional decision-support.
         </p>
         <div className="footer-bottom">
-          <span>&copy; 2026 NECC Dashboard. Live data from e2necc.com.</span>
+          <span>&copy; 2026 NECC Commodity Terminal • Real-Time Benchmark Feed from e2necc.com</span>
         </div>
       </footer>
     </div>
