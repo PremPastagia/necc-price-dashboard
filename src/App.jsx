@@ -14,6 +14,7 @@ import { ForecastControls } from './components/ForecastControls';
 import MarketAnalysis from './components/MarketAnalysis';
 import RiskAnalysis from './components/RiskAnalysis';
 import Login from './components/Login';
+import ClientDashboard from './components/ClientDashboard';
 import { generateForecast, movingAverage } from './utils/forecasting';
 import eggLogo from './assets/egg_logo.svg';
 
@@ -21,7 +22,15 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
-  const [mode, setMode] = useState('daily'); // 'daily', 'trend', 'forecast', 'market-analysis', 'risk-analysis'
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('currentUser');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const [mode, setMode] = useState('daily'); // 'daily', 'trend', 'forecast', 'market-analysis', 'risk-analysis', 'client-portal'
   const [sheetType, setSheetType] = useState('daily'); // 'daily' or 'monthly'
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
@@ -288,13 +297,19 @@ function App() {
     runForecast();
   }, [mode, historyData, selectedCity, forecastDays, forecastModel]);
 
-  const handleLogin = () => {
+  const handleLogin = (userData) => {
     localStorage.setItem('isLoggedIn', 'true');
+    if (userData) {
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      setCurrentUser(userData);
+    }
     setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('currentUser');
+    setCurrentUser(null);
     setIsLoggedIn(false);
   };
 
@@ -311,9 +326,34 @@ function App() {
           <span className="logo-text">NECC <span className="highlight">EGGPRICE</span></span>
         </div>
         <nav>
-          <a href="#stats">Statistics</a>
-          <a href="#insights">Insights</a>
+          <button
+            className={`nav-mode-btn ${mode === 'client-portal' ? 'active' : ''}`}
+            onClick={() => { setMode('client-portal'); document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }); }}
+            style={{
+              background: mode === 'client-portal' ? 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)' : 'rgba(255,255,255,0.08)',
+              color: mode === 'client-portal' ? '#0D1137' : '#FFD700',
+              border: '1px solid rgba(255,215,0,0.35)',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              boxShadow: mode === 'client-portal' ? '0 0 15px rgba(255,215,0,0.4)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            💼 Client Trade Hub
+          </button>
+          <a href="#stats" onClick={() => setMode('daily')}>Statistics</a>
+          <a href="#insights" onClick={() => setMode('market-analysis')}>Insights</a>
           <a href="#prices">Live Prices</a>
+          {currentUser && (
+            <span style={{ fontSize: '0.8rem', color: '#FFD700', background: 'rgba(255,215,0,0.1)', padding: '5px 12px', borderRadius: '20px', border: '1px solid rgba(255,215,0,0.25)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span>👤</span>
+              <strong>{currentUser.name}</strong>
+              <span style={{ opacity: 0.7, fontSize: '0.75rem' }}>({currentUser.badge || currentUser.role})</span>
+            </span>
+          )}
           <button className="cta-btn" onClick={handleLogout}>Logout</button>
         </nav>
       </header>
@@ -354,7 +394,11 @@ function App() {
         />
 
         <div className="visual-grid animate-in">
-          {mode === 'daily' ? (
+          {mode === 'client-portal' ? (
+            <div className="visual-card glass-card span-2" style={{ padding: '0', background: 'transparent', border: 'none' }}>
+              <ClientDashboard livePrices={livePrices} availableCities={availableCities} user={currentUser} />
+            </div>
+          ) : mode === 'daily' ? (
             <>
               <div className="visual-card glass-card">
                 <h3>State-wise Contribution</h3>

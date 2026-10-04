@@ -68,6 +68,13 @@ export const SelectionBar = ({ selectedDate, onDateChange, range, onRangeChange,
                 >
                     ⚠️ Risk Index
                 </button>
+                <button
+                    className={mode === 'client-portal' ? 'active' : ''}
+                    onClick={() => setMode('client-portal')}
+                    style={mode === 'client-portal' ? { background: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)', color: '#0D1137', fontWeight: 800 } : { color: '#FFD700' }}
+                >
+                    💼 Client Hub & Entry
+                </button>
             </div>
 
             {mode === 'daily' ? (
@@ -81,6 +88,10 @@ export const SelectionBar = ({ selectedDate, onDateChange, range, onRangeChange,
             ) : mode === 'risk-analysis' ? (
                 <div className="filter-group">
                     <span className="forecast-mode-hint">⚠️ Price Stability, Shock Detection & Risk Index</span>
+                </div>
+            ) : mode === 'client-portal' ? (
+                <div className="filter-group">
+                    <span className="forecast-mode-hint">💼 Client Trade Ledger, Database Entry & NECC Benchmark Comparison</span>
                 </div>
             ) : (
                 <div className="filter-group">
