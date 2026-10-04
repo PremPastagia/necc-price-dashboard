@@ -1,15 +1,16 @@
 /* ==========================================================================
    NECC COMMODITY TERMINAL — AUTHENTICATION & GATEWAY STYLES
+   Monochrome Slate/Zinc + Emerald Green Accent
    ========================================================================== */
 
 .login-terminal-wrapper {
   min-height: 100vh;
   width: 100vw;
-  background-color: #080C14;
+  background-color: #000000;
   background-image: 
-    radial-gradient(circle at 15% 20%, rgba(245, 158, 11, 0.05) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(14, 165, 233, 0.04) 0%, transparent 45%);
-  color: #F8FAFC;
+    radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.02) 0%, transparent 45%);
+  color: #FFFFFF;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -18,7 +19,7 @@
 
 /* Ticker tape at the top */
 .login-ticker-tape {
-  background: #0D1322;
+  background: #09090B;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 8px 24px;
   display: flex;
@@ -30,8 +31,8 @@
 }
 
 .ticker-label {
-  background: #F59E0B;
-  color: #080C14;
+  background: #10B981;
+  color: #000000;
   font-weight: 800;
   padding: 2px 8px;
   border-radius: 4px;
@@ -46,14 +47,14 @@
 }
 
 .ticker-item {
-  color: #94A3B8;
+  color: #A1A1AA;
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
 .ticker-city {
-  color: #F1F5F9;
+  color: #FFFFFF;
   font-weight: 600;
 }
 
@@ -70,8 +71,8 @@
 }
 
 .delta-down {
-  color: #EF4444;
-  background: rgba(239, 68, 68, 0.1);
+  color: #71717A;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Main split layout */
@@ -111,7 +112,20 @@
 .showcase-logo {
   width: 60px;
   height: 60px;
-  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.4));
+  filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.35));
+}
+
+.brand-text-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-micro {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #10B981;
+  text-transform: uppercase;
 }
 
 .showcase-title {
@@ -123,11 +137,11 @@
 }
 
 .highlight-gold {
-  color: #F59E0B;
+  color: #10B981;
 }
 
 .showcase-tagline {
-  color: #94A3B8;
+  color: #A1A1AA;
   font-size: 0.95rem;
   margin-top: 6px;
   line-height: 1.5;
@@ -139,43 +153,43 @@
   gap: 16px;
 }
 
-.feature-item {
+.showcase-feature-item {
   display: flex;
-  align-items: flex-start;
   gap: 14px;
-  background: rgba(15, 23, 42, 0.6);
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
   padding: 14px 18px;
   border-radius: 12px;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.feature-item:hover {
-  border-color: rgba(245, 158, 11, 0.3);
+.showcase-feature-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(16, 185, 129, 0.3);
   transform: translateX(4px);
 }
 
-.feature-icon {
+.feature-icon-box {
   font-size: 1.3rem;
   line-height: 1;
-  padding-top: 2px;
+  margin-top: 2px;
 }
 
-.feature-item h4 {
+.feature-body h4 {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #F8FAFC;
-  margin-bottom: 3px;
+  color: #FFFFFF;
+  margin-bottom: 2px;
 }
 
-.feature-item p {
+.feature-body p {
   font-size: 0.82rem;
-  color: #94A3B8;
+  color: #A1A1AA;
   line-height: 1.4;
-  margin: 0;
 }
 
-.showcase-footer-stat {
+.showcase-mini-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
@@ -191,13 +205,13 @@
 .stat-num {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #F59E0B;
+  color: #10B981;
   font-variant-numeric: tabular-nums;
 }
 
 .stat-desc {
   font-size: 0.72rem;
-  color: #64748B;
+  color: #71717A;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -211,11 +225,11 @@
 .terminal-card {
   width: 100%;
   max-width: 520px;
-  background: #0F172A;
+  background: #09090B;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   padding: 32px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
 }
 
 .card-header {
@@ -224,9 +238,9 @@
 
 .terminal-badge {
   display: inline-block;
-  background: rgba(245, 158, 11, 0.12);
-  color: #F59E0B;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(16, 185, 129, 0.12);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.8px;
@@ -239,20 +253,20 @@
   font-size: 1.5rem;
   font-weight: 800;
   color: #FFFFFF;
-  margin: 0 0 6px 0;
+  letter-spacing: -0.3px;
 }
 
-.card-header p {
-  font-size: 0.82rem;
-  color: #94A3B8;
-  margin: 0;
+.card-subtitle {
+  font-size: 0.85rem;
+  color: #A1A1AA;
+  margin-top: 4px;
 }
 
-/* Persona selection box */
-.persona-selection-box {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  border-radius: 14px;
+/* Persona presets box */
+.persona-presets-box {
+  background: #18181B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   padding: 14px;
   margin-bottom: 20px;
 }
@@ -263,17 +277,18 @@
   align-items: center;
   font-size: 0.7rem;
   font-weight: 800;
-  color: #F59E0B;
+  color: #10B981;
   letter-spacing: 0.5px;
   margin-bottom: 10px;
 }
 
 .instant-tag {
   background: #10B981;
-  color: #080C14;
+  color: #000000;
   padding: 1px 6px;
   border-radius: 4px;
   font-size: 0.65rem;
+  font-weight: 800;
 }
 
 .persona-grid {
@@ -283,7 +298,7 @@
 }
 
 .persona-btn {
-  background: #1E293B;
+  background: #27272A;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 10px;
@@ -296,10 +311,10 @@
 }
 
 .persona-btn:hover {
-  background: #334155;
-  border-color: #F59E0B;
+  background: #3F3F46;
+  border-color: #10B981;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .p-header {
@@ -310,7 +325,7 @@
 .p-badge {
   font-size: 0.72rem;
   font-weight: 800;
-  color: #F59E0B;
+  color: #10B981;
 }
 
 .p-name {
@@ -321,7 +336,7 @@
 
 .p-desc {
   font-size: 0.68rem;
-  color: #94A3B8;
+  color: #A1A1AA;
   line-height: 1.25;
 }
 
@@ -329,7 +344,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  color: #64748B;
+  color: #71717A;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.8px;
@@ -372,13 +387,13 @@
 .form-field label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #CBD5E1;
+  color: #D4D4D8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .form-field input {
-  background: #1E293B;
+  background: #18181B;
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #FFFFFF;
   padding: 12px 14px;
@@ -389,13 +404,13 @@
 }
 
 .form-field input:focus {
-  border-color: #F59E0B;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  border-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .terminal-submit-btn {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-  color: #080C14;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #000000;
   border: none;
   padding: 14px;
   border-radius: 10px;
@@ -420,5 +435,5 @@
   margin-top: 18px;
   text-align: center;
   font-size: 0.72rem;
-  color: #64748B;
+  color: #71717A;
 }

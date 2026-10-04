@@ -561,66 +561,92 @@ We find that classical parsimonious models systematically dominate complex algor
       {/* ─────────────────────────────────────────────────────────────
           3. REAL-TIME EXECUTIVE KPI METRICS
           ───────────────────────────────────────────────────────────── */}
-      <div className="terminal-kpi-grid">
+      {/* ─────────────────────────────────────────────────────────────
+          3. REAL-TIME EXECUTIVE DECISION-MAKING KPI COCKPIT (5 CORE DECISION SIGNALS)
+          ───────────────────────────────────────────────────────────── */}
+      <div className="terminal-kpi-grid decision-kpi-grid">
+        {/* KPI 1: National Benchmark Reference */}
         <div className="kpi-tile glass-tile">
           <div className="kpi-header">
-            <span className="kpi-label">NATIONAL BENCHMARK (NECC)</span>
-            <span className="kpi-icon">🏛️</span>
+            <span className="kpi-label">NATIONAL BENCHMARK</span>
+            <span className="kpi-decision-pill pill-green">BENCHMARK</span>
           </div>
           <div className="kpi-value-row">
-            <span className="kpi-number">₹{nationalBenchmarkAvg.toFixed(2)}</span>
+            <span className="kpi-number text-green">₹{nationalBenchmarkAvg.toFixed(2)}</span>
             <span className="kpi-unit">/ egg</span>
           </div>
           <div className="kpi-footnote">
             <span>Peti (210): ₹{(nationalBenchmarkAvg * 210).toFixed(0)}</span>
-            <span className="badge-live">LIVE BENCHMARK</span>
+            <span className="kpi-foot-hint">Zonal Reference Floor</span>
           </div>
         </div>
 
+        {/* KPI 2: Cold Storage Holding Advisory */}
         <div className="kpi-tile glass-tile">
           <div className="kpi-header">
-            <span className="kpi-label">CLIENT TRADED VOLUME</span>
-            <span className="kpi-icon">📦</span>
+            <span className="kpi-label">HOLD VS DISPATCH</span>
+            <span className={`kpi-decision-pill ${holdingResult.shouldHold ? 'pill-green' : 'pill-white'}`}>
+              {holdingResult.shouldHold ? 'ACTION: HOLD' : 'ACTION: SHIP'}
+            </span>
           </div>
           <div className="kpi-value-row">
-            <span className="kpi-number">{stats.totalVolumeEggs.toLocaleString()}</span>
-            <span className="kpi-unit">eggs</span>
+            <span className={`kpi-number ${holdingResult.shouldHold ? 'text-green' : 'text-white'}`}>
+              {holdingResult.shouldHold ? 'HOLD LOTS' : 'DISPATCH NOW'}
+            </span>
           </div>
           <div className="kpi-footnote">
-            <span>{stats.totalPetis.toLocaleString()} Petis (210s)</span>
-            <span>{stats.totalTrades} Recorded Lots</span>
+            <span>{holdingResult.shouldHold ? `+₹${holdingResult.netHoldingAdvantage.toLocaleString()} Projected Gain` : 'Cost Exceeds Drift'}</span>
+            <span className="kpi-foot-hint">{holdingDays}d Storage Cycle</span>
           </div>
         </div>
 
+        {/* KPI 3: Top Inter-Mandi Arbitrage Margin */}
         <div className="kpi-tile glass-tile">
           <div className="kpi-header">
-            <span className="kpi-label">GROSS REALIZED TURNOVER</span>
-            <span className="kpi-icon">💰</span>
+            <span className="kpi-label">MAX ARBITRAGE MARGIN</span>
+            <span className="kpi-decision-pill pill-green">TRUCKLOAD</span>
           </div>
           <div className="kpi-value-row">
-            <span className="kpi-number">₹{Math.round(stats.totalGrossValue).toLocaleString()}</span>
+            <span className="kpi-number text-green">
+              +₹{Math.max(0, arbitrageResult.netTripProfit).toLocaleString()}
+            </span>
           </div>
           <div className="kpi-footnote">
-            <span>Weighted Avg: ₹{stats.avgTradePrice.toFixed(2)} / egg</span>
-            <span>Session Realized</span>
+            <span>{arbOrigin} → {arbDestination}</span>
+            <span className="kpi-foot-hint">+₹{arbitrageResult.netProfitPerEgg}/egg net</span>
           </div>
         </div>
 
-        <div className={`kpi-tile glass-tile ${stats.totalAdvantage >= 0 ? 'kpi-positive' : 'kpi-caution'}`}>
+        {/* KPI 4: Net Realized Alpha vs NECC Base */}
+        <div className="kpi-tile glass-tile">
           <div className="kpi-header">
-            <span className="kpi-label">NET MARGIN / SAVINGS VS BENCHMARK</span>
-            <span className="kpi-icon">📈</span>
+            <span className="kpi-label">REALIZED ALPHA / SAVINGS</span>
+            <span className="kpi-decision-pill pill-white">CLIENT LEDGER</span>
           </div>
           <div className="kpi-value-row">
-            <span className="kpi-number">
+            <span className={`kpi-number ${stats.totalAdvantage >= 0 ? 'text-green' : 'text-white'}`}>
               {stats.totalAdvantage >= 0 ? '+' : '-'}₹{Math.abs(Math.round(stats.totalAdvantage)).toLocaleString()}
             </span>
           </div>
           <div className="kpi-footnote">
-            <span>Client Alpha vs NECC Base</span>
-            <span className={stats.totalAdvantage >= 0 ? 'text-green' : 'text-red'}>
-              {stats.totalAdvantage >= 0 ? '▲ Cost Saved / Margin Gained' : '▼ Premium Incurred'}
-            </span>
+            <span>{stats.totalTrades} Executed Lots</span>
+            <span className="kpi-foot-hint">{stats.totalVolumeEggs.toLocaleString()} Eggs</span>
+          </div>
+        </div>
+
+        {/* KPI 5: Feed Cost Break-Even Parity */}
+        <div className="kpi-tile glass-tile">
+          <div className="kpi-header">
+            <span className="kpi-label">FEED BREAK-EVEN PARITY</span>
+            <span className="kpi-decision-pill pill-green">SAFETY INDEX</span>
+          </div>
+          <div className="kpi-value-row">
+            <span className="kpi-number text-white">1.24x</span>
+            <span className="kpi-unit">coverage</span>
+          </div>
+          <div className="kpi-footnote">
+            <span>Floor: ₹4.25/egg cost</span>
+            <span className="kpi-foot-hint text-green">Profitable Zone</span>
           </div>
         </div>
       </div>
